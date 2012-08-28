@@ -3,7 +3,7 @@ using System.Collections;
 
 public class GUIScript : MonoBehaviour
 {
-
+    public GUIStyle guiStyle;
     // Use this for initialization
     void Start()
     {
@@ -21,9 +21,9 @@ public class GUIScript : MonoBehaviour
 
     void OnGUI()
     {
-        if (GUI.Button(new Rect(10, 10, 150, 100), "I am a button"))
+        if (GUILayout.Button("QUIT", guiStyle))
         {
-            Application.Quit();
+            //Application.Quit();
         }
     }
 }
