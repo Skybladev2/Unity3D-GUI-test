@@ -4,6 +4,8 @@ using System.Collections;
 public class GUIScript : MonoBehaviour
 {
     public GUIStyle guiStyle;
+	private float guiButtonsColumnWidth = 0.6f;
+
     // Use this for initialization
     void Start()
     {
@@ -21,9 +23,21 @@ public class GUIScript : MonoBehaviour
 
     void OnGUI()
     {
-        if (GUILayout.Button("QUIT", guiStyle))
+		GUILayout.BeginArea (new Rect ((Screen.width - Screen.width * guiButtonsColumnWidth) / 2, 0,
+		                               Screen.width * guiButtonsColumnWidth, Screen.height));
+		GUILayout.BeginVertical();
+
+		if (GUILayout.Button("START", guiStyle))
         {
             //Application.Quit();
         }
+
+        if (GUILayout.Button("QUIT", guiStyle))
+        {
+            Application.Quit();
+        }
+
+		GUILayout.EndVertical();
+		GUILayout.EndArea();
     }
 }
