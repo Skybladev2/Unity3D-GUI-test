@@ -23,7 +23,38 @@ public class GUIScript : MonoBehaviour
 		//style.fontSize = 24;
 		
 	}
-	
+
+	public static void DrawBorders (Texture2D leftBarTexture, bool drawLeftBorder)
+	{
+		Color borderColor = new Color32(255,0, 0, 255);
+		
+		for (int x = 0; x < leftBarTexture.width; x++)
+		{
+			leftBarTexture.SetPixel(x, 0, borderColor);
+			leftBarTexture.SetPixel(x, 1, borderColor);
+			leftBarTexture.SetPixel(x, 2, borderColor);
+			
+			leftBarTexture.SetPixel(x, leftBarTexture.height - 1, borderColor);
+			leftBarTexture.SetPixel(x, leftBarTexture.height - 2, borderColor);
+			leftBarTexture.SetPixel(x, leftBarTexture.height - 3, borderColor);
+		}
+		
+		for (int y = 3; y < leftBarTexture.height - 3; y++)
+		{
+			if(drawLeftBorder)
+			{
+				leftBarTexture.SetPixel(0, y, borderColor);
+				leftBarTexture.SetPixel(1, y, borderColor);
+				leftBarTexture.SetPixel(2, y, borderColor);
+			}
+			
+			leftBarTexture.SetPixel(leftBarTexture.width - 1, y, borderColor);
+			leftBarTexture.SetPixel(leftBarTexture.width - 2, y, borderColor);
+			leftBarTexture.SetPixel(leftBarTexture.width - 3, y, borderColor);
+		}
+		
+		leftBarTexture.Apply();
+	}
 	
 	// Update is called once per frame
 	void Update ()

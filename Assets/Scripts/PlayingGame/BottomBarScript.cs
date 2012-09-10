@@ -1,13 +1,13 @@
 using UnityEngine;
 using System.Collections;
 
-public class LeftBarScript : MonoBehaviour {
-	
+public class BottomBarScript : MonoBehaviour {
+
 	// Use this for initialization
 	void Start () {
-		Texture2D leftBarTexture = new Texture2D (50, Screen.height);
-		GUIScript. DrawBorders (leftBarTexture, true);
-		Rect newInset = new Rect(0,0, 50, Screen.height);
+		Texture2D leftBarTexture = new Texture2D (Screen.width - 50, 50);
+		GUIScript.DrawBorders (leftBarTexture, false);
+		Rect newInset = new Rect(50,0, Screen.width - 50, 50);
 		guiTexture.pixelInset = newInset;
 		guiTexture.texture = leftBarTexture;
 	}
@@ -16,7 +16,4 @@ public class LeftBarScript : MonoBehaviour {
 	void Update () {
 	
 	}
-	
-
-
 }
