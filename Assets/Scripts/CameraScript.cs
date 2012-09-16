@@ -7,6 +7,9 @@ public class CameraScript : MonoBehaviour {
 	private Vector3 initialCameraPosition;
 	private Vector3 delta;
 	private Vector3 cameraScreenCoords;
+
+	private Vector3 initialMousePos;
+
 	private bool drag = false;
 	public GUIText touchLabel;
 	public GUIText transformLabel;
@@ -20,14 +23,62 @@ public class CameraScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		#if UNITY_STANDALONE_WIN || UNITY_EDITOR
-		if(Input.GetMouseButton(0))
+		if(Input.GetMouseButtonDown(0))
 		{
-			float x = Input.GetAxis("Mouse X");
-			float y = Input.GetAxis("Mouse Y");
-			transform.Translate(-x,-y,0);
+			if(!drag)
+			{
+				drag = true;
+				initialMousePos = Input.mousePosition;
+				initialCameraPosition = this.transform.position;
+			}
+		}
+
+		if(Input.GetMouseButtonUp(0))
+		{
+			drag = false;
+		}
+
+		if(drag)
+		{
+			Vector3 mousePos = Input.mousePosition;
+			Vector2 delta = camera.ScreenToWorldPoint(Input.mousePosition) - camera.ScreenToWorldPoint(initialMousePos);
+			
+			Vector3 newPos = initialCameraPosition;
+			newPos.x -= delta.x;
+			newPos.y -= delta.y;
+			this.transform.position = newPos;
+		}
+
+		// приближаем
+		//
+		if(Input.GetAxis("Mouse ScrollWheel") > 0)
+		{
+			Vector3 zoomPointScreenCoords = Input.mousePosition;
+			Vector3 zoomPointOldWorldCoords = Camera.main.ScreenToWorldPoint(zoomPointScreenCoords);
+
+			Camera.main.orthographicSize -= 10;
+
+			Vector3 zoomPointNewWorldCoords = Camera.main.ScreenToWorldPoint(zoomPointScreenCoords);
+			Vector3 delta = zoomPointNewWorldCoords-zoomPointOldWorldCoords;
+			transform.Translate(-delta.x, -delta.y,0);
+		}
+
+		// отдаляем
+		//
+		if(Input.GetAxis("Mouse ScrollWheel") < 0)
+		{
+			Vector3 zoomPointScreenCoords = Input.mousePosition;
+			Vector3 zoomPointOldWorldCoords = Camera.main.ScreenToWorldPoint(zoomPointScreenCoords);
+			
+			Camera.main.orthographicSize += 10;
+			
+			Vector3 zoomPointNewWorldCoords = Camera.main.ScreenToWorldPoint(zoomPointScreenCoords);
+			Vector3 delta = zoomPointNewWorldCoords-zoomPointOldWorldCoords;
+			transform.Translate(-delta.x, -delta.y,0);
 		}
 		#endif
 
+#if UNITY_ANDROID
 		if(Input.touchCount == 1)
 		{
 			Touch touch0 = Input.GetTouch(0);
@@ -45,7 +96,6 @@ public class CameraScript : MonoBehaviour {
 
 			if(touch0.phase == TouchPhase.Moved || touch0.phase == TouchPhase.Stationary)
 			{
-
 				Vector3 mousePos = touch0.position;
 				Vector2 delta = camera.ScreenToWorldPoint(touch0.position) - camera.ScreenToWorldPoint(initialTouchPosition);
 
@@ -62,6 +112,7 @@ public class CameraScript : MonoBehaviour {
 				drag = false;
 			}
 	   	}
+#endif
 
 	}
 }
