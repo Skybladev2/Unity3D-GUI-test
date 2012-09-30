@@ -15,6 +15,9 @@ public class CameraScript : MonoBehaviour {
 	public GUIText transformLabel;
 	public GUIText positionLabel;
 
+	public GUIText pinchScaleLabel;
+	public GUIText pinchDeltaLabel;
+
 	// Use this for initialization
 	void Start () {
 	
@@ -78,7 +81,7 @@ public class CameraScript : MonoBehaviour {
 		}
 		#endif
 
-#if UNITY_ANDROID
+//#if UNITY_ANDROID
 		if(Input.touchCount == 1)
 		{
 			Touch touch0 = Input.GetTouch(0);
@@ -112,7 +115,52 @@ public class CameraScript : MonoBehaviour {
 				drag = false;
 			}
 	   	}
-#endif
 
+		if(Input.touchCount == 2)
+		{
+			Touch touch0 = Input.GetTouch(0);			
+			Touch touch1 = Input.GetTouch(1);
+			float scaleFactor = GetScaleFactor(touch0.position, touch1.position, touch0.deltaPosition, touch1.deltaPosition);
+			Vector2 translationDelta = GetTranslationDelta(touch0.position, touch0.position,
+			                                               touch0.deltaPosition, touch1.deltaPosition,
+			                                               this.transform.position, scaleFactor);
+
+
+			this.pinchScaleLabel.text = scaleFactor.ToString();
+			this.pinchDeltaLabel.text = translationDelta.ToString();
+			Camera.main.orthographicSize /= scaleFactor;
+		}
+//#endif
+
+
+	}
+
+	public static float GetScaleFactor(Vector2 position1, Vector2 position2, Vector2 delta1, Vector2 delta2)
+	{
+		Vector2 oldPosition1 = position1 - delta1;
+		Vector2 oldPosition2 = position2 - delta2;
+		
+		float distance = Vector2.Distance(position1, position2);
+		float oldDistance = Vector2.Distance(oldPosition1, oldPosition2);
+		
+		if(oldDistance == 0 || distance == 0)
+		{
+			return 1.0f;
+		}
+		
+		return distance / oldDistance;
+	}
+
+	public static Vector2 GetTranslationDelta(Vector2 position1, Vector2 position2, Vector2 delta1, Vector2 delta2,
+	                                          Vector2 objectPos, float scaleFactor)
+	{
+		Vector2 oldPosition1 = position1 - delta1;
+		Vector2 oldPosition2 = position2 - delta2;
+		
+		Vector2 newPos1 = position1 + (objectPos - oldPosition1) * scaleFactor;
+		Vector2 newPos2 = position2 + (objectPos - oldPosition2) * scaleFactor;
+		Vector2 newPos = (newPos1 + newPos2) / 2;
+		
+		return newPos - objectPos;
 	}
 }
