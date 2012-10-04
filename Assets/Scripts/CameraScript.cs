@@ -91,37 +91,43 @@ public class CameraScript : MonoBehaviour {
 //#if UNITY_ANDROID
 		if(Input.touchCount == 1)
 		{
+			zoom = false;
 			Touch touch0 = Input.GetTouch(0);
 
-			if(touch0.phase == TouchPhase.Began)
+			if(IsTouching (touch0))
 			{
-				initialTouchPosition = touch0.position;
-				initialCameraPosition = this.transform.position;
+				if (!drag)
+				{
+					initialTouchPosition = touch0.position;
+					initialCameraPosition = this.transform.position;
 
-				//delta =  this.transform.position - initialTouchPosition;
-				drag = true;
-				touchLabel.text = "Touched at " + touch0.position.ToString();
-
+					//delta =  this.transform.position - initialTouchPosition;
+					drag = true;
+					touchLabel.text = "Touched at " + touch0.position.ToString();
+				}
+				else
+				{
+					Vector3 mousePos = touch0.position;
+					Vector2 delta = camera.ScreenToWorldPoint(touch0.position) - camera.ScreenToWorldPoint(initialTouchPosition);
+					
+					positionLabel.text= "Now at " + touch0.position.ToString();
+					Vector3 newPos = initialCameraPosition;
+					newPos.x -= delta.x;
+					newPos.y -= delta.y;
+					this.transform.position = newPos;
+					transformLabel.text  = "Transform at " + this.transform.position.ToString();
+				}
 			}
 
-			if(touch0.phase == TouchPhase.Moved || touch0.phase == TouchPhase.Stationary)
-			{
-				Vector3 mousePos = touch0.position;
-				Vector2 delta = camera.ScreenToWorldPoint(touch0.position) - camera.ScreenToWorldPoint(initialTouchPosition);
-
-				positionLabel.text= "Now at " + touch0.position.ToString();
-				Vector3 newPos = initialCameraPosition;
-				newPos.x -= delta.x;
-				newPos.y -= delta.y;
-				this.transform.position = newPos;
-				transformLabel.text  = "Transform at " + this.transform.position.ToString();
-			}
-
-			if(touch0.phase == TouchPhase.Ended || touch0.phase == TouchPhase.Canceled)
+			if(!IsTouching(touch0))
 			{
 				drag = false;
 			}
 	   	}
+		else
+		{
+			drag = false;
+		}
 
 		if(Input.touchCount == 2)
 		{
@@ -156,9 +162,20 @@ public class CameraScript : MonoBehaviour {
 				Camera.main.orthographicSize = initialOrthographicSize / scaleFactor;
 			}
 		}
+		else
+		{
+			zoom = false;
+		}
 //#endif
 
 
+	}
+
+	static bool IsTouching (Touch touch)
+	{
+		return touch.phase == TouchPhase.Began || 
+				touch.phase == TouchPhase.Moved || 
+				touch.phase == TouchPhase.Stationary;
 	}
 
 	public static float GetScaleFactor(Vector2 position1, Vector2 position2, Vector2 oldPosition1, Vector2 oldPosition2)
