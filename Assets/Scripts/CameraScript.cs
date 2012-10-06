@@ -40,6 +40,21 @@ public class CameraScript : MonoBehaviour {
 		transform.Translate(-delta.x, -delta.y,0);
 	}
 
+	void ZoomToPoint(float cameraOldSize, Vector3 cameraOldPosition, float scale, Vector3 screenCoords)
+	{
+		Vector3 zoomPointOldWorldCoords = Camera.main.ScreenToWorldPoint(screenCoords);
+		Camera.main.orthographicSize = cameraOldSize / scale;
+		
+		Vector3 zoomPointNewWorldCoords = Camera.main.ScreenToWorldPoint(screenCoords);
+		Vector3 delta = zoomPointNewWorldCoords-zoomPointOldWorldCoords;
+
+		Vector3 newPosition = cameraOldPosition;
+		newPosition.x -= delta.x;
+		newPosition.y -= delta.y;
+
+		transform.position = newPosition;
+	}
+
 	// Update is called once per frame
 	void Update () {
 		#if UNITY_STANDALONE_WIN || UNITY_EDITOR
@@ -135,6 +150,7 @@ public class CameraScript : MonoBehaviour {
 			{
 				initialTouch0Position = touch0.position;
 				initialTouch1Position = touch1.position;
+				initialCameraPosition = this.transform.position;
 				initialOrthographicSize = Camera.main.orthographicSize;
 
 				zoom = true;
@@ -143,18 +159,23 @@ public class CameraScript : MonoBehaviour {
 			{
 				float delta0 = Vector2.Distance(touch0.position, initialTouch0Position);
 				float delta1 = Vector2.Distance(touch1.position, initialTouch1Position);
-				float scaleFactor = GetScaleFactor(touch0.position, 
+
+				float scaleFactor0 = GetScaleFactor(initialTouch0Position, 
 				                                   touch1.position, 
 				                                   initialTouch0Position, 
 				                                   initialTouch1Position);
-				//Vector2 translationDelta = GetTranslationDelta(touch0.position, touch0.position,
-				//                                               touch0.deltaPosition, touch1.deltaPosition,
-				//                                               this.transform.position, scaleFactor);
 
+				float scaleFactor1 = GetScaleFactor(touch0.position, 
+				                                    touch1.position, 
+				                                    initialTouch0Position, 
+				                                    touch1.position);
 
-				this.pinchScaleLabel.text = scaleFactor.ToString();
+				ZoomToPoint(initialOrthographicSize, initialCameraPosition, scaleFactor0, initialTouch0Position);
+				ZoomToPoint(Camera.main.orthographicSize, initialCameraPosition, scaleFactor1, touch1.position);
+
+				this.pinchScaleLabel.text = (scaleFactor0 + scaleFactor1).ToString();
 				//this.pinchDeltaLabel.text = translationDelta.ToString();
-				Camera.main.orthographicSize = initialOrthographicSize / scaleFactor;
+				//Camera.main.orthographicSize = initialOrthographicSize / scaleFactor;
 			}
 		}
 		else
