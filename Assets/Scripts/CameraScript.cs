@@ -29,7 +29,17 @@ public class CameraScript : MonoBehaviour {
 	{
 
 	}
-	
+
+	void ZoomToPoint(float cameraOldSize, float scale, Vector3 screenCoords)
+	{
+		Vector3 zoomPointOldWorldCoords = Camera.main.ScreenToWorldPoint(screenCoords);
+		Camera.main.orthographicSize = cameraOldSize / scale;
+
+		Vector3 zoomPointNewWorldCoords = Camera.main.ScreenToWorldPoint(screenCoords);
+		Vector3 delta = zoomPointNewWorldCoords-zoomPointOldWorldCoords;
+		transform.Translate(-delta.x, -delta.y,0);
+	}
+
 	// Update is called once per frame
 	void Update () {
 		#if UNITY_STANDALONE_WIN || UNITY_EDITOR
@@ -63,28 +73,14 @@ public class CameraScript : MonoBehaviour {
 		//
 		if(Input.GetAxis("Mouse ScrollWheel") > 0)
 		{
-			Vector3 zoomPointScreenCoords = Input.mousePosition;
-			Vector3 zoomPointOldWorldCoords = Camera.main.ScreenToWorldPoint(zoomPointScreenCoords);
-
-			Camera.main.orthographicSize -= 10;
-
-			Vector3 zoomPointNewWorldCoords = Camera.main.ScreenToWorldPoint(zoomPointScreenCoords);
-			Vector3 delta = zoomPointNewWorldCoords-zoomPointOldWorldCoords;
-			transform.Translate(-delta.x, -delta.y,0);
+			ZoomToPoint(Camera.main.orthographicSize, 1.01f, Input.mousePosition);
 		}
 
 		// отдаляем
 		//
 		if(Input.GetAxis("Mouse ScrollWheel") < 0)
 		{
-			Vector3 zoomPointScreenCoords = Input.mousePosition;
-			Vector3 zoomPointOldWorldCoords = Camera.main.ScreenToWorldPoint(zoomPointScreenCoords);
-			
-			Camera.main.orthographicSize += 10;
-			
-			Vector3 zoomPointNewWorldCoords = Camera.main.ScreenToWorldPoint(zoomPointScreenCoords);
-			Vector3 delta = zoomPointNewWorldCoords-zoomPointOldWorldCoords;
-			transform.Translate(-delta.x, -delta.y,0);
+			ZoomToPoint(Camera.main.orthographicSize, 0.99f, Input.mousePosition);
 		}
 		#endif
 
@@ -101,7 +97,6 @@ public class CameraScript : MonoBehaviour {
 					initialTouchPosition = touch0.position;
 					initialCameraPosition = this.transform.position;
 
-					//delta =  this.transform.position - initialTouchPosition;
 					drag = true;
 					touchLabel.text = "Touched at " + touch0.position.ToString();
 				}
