@@ -7,6 +7,7 @@ public class CameraScript : MonoBehaviour {
 	private Vector3 initialCameraPosition;
 	private Vector3 delta;
 	private Vector3 cameraScreenCoords;
+	private Vector2 initialMidPoint;
 
 	private Vector3 initialMousePos;
 
@@ -152,30 +153,30 @@ public class CameraScript : MonoBehaviour {
 				initialTouch1Position = touch1.position;
 				initialCameraPosition = this.transform.position;
 				initialOrthographicSize = Camera.main.orthographicSize;
+				initialMidPoint = (touch0.position + touch1.position) / 2;
 
 				zoom = true;
 			}
 			else
 			{
-				float delta0 = Vector2.Distance(touch0.position, initialTouch0Position);
-				float delta1 = Vector2.Distance(touch1.position, initialTouch1Position);
-
-				float scaleFactor0 = GetScaleFactor(initialTouch0Position, 
+				float scaleFactor = GetScaleFactor(touch0.position, 
 				                                   touch1.position, 
 				                                   initialTouch0Position, 
 				                                   initialTouch1Position);
 
-				float scaleFactor1 = GetScaleFactor(touch0.position, 
-				                                    touch1.position, 
-				                                    initialTouch0Position, 
-				                                    touch1.position);
+				Vector2 currentMidPoint = (touch0.position + touch1.position) / 2;
 
-				ZoomToPoint(initialOrthographicSize, initialCameraPosition, scaleFactor0, initialTouch0Position);
-				ZoomToPoint(Camera.main.orthographicSize, initialCameraPosition, scaleFactor1, touch1.position);
+				Camera.main.orthographicSize = initialOrthographicSize / scaleFactor;
 
-				this.pinchScaleLabel.text = (scaleFactor0 + scaleFactor1).ToString();
-				//this.pinchDeltaLabel.text = translationDelta.ToString();
-				//Camera.main.orthographicSize = initialOrthographicSize / scaleFactor;
+				Vector2 delta = camera.ScreenToWorldPoint(currentMidPoint) - camera.ScreenToWorldPoint(initialMidPoint);
+				
+				Vector3 newPos = initialCameraPosition;
+				newPos.x -= delta.x;
+				newPos.y -= delta.y;
+				this.transform.position = newPos;
+				transformLabel.text  = "Transform at " + this.transform.position.ToString();
+
+				this.pinchScaleLabel.text = scaleFactor.ToString();
 			}
 		}
 		else
