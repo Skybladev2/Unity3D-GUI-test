@@ -7,7 +7,9 @@ public class CameraScript : MonoBehaviour {
 	private Vector3 initialCameraPosition;
 	private Vector3 delta;
 	private Vector3 cameraScreenCoords;
-	private Vector2 initialMidPoint;
+	private Vector3 initialMidPointScreen;
+	private Vector3 initialMidPointWorld;
+
 
 	private Vector3 initialMousePos;
 
@@ -153,7 +155,8 @@ public class CameraScript : MonoBehaviour {
 				initialTouch1Position = touch1.position;
 				initialCameraPosition = this.transform.position;
 				initialOrthographicSize = Camera.main.orthographicSize;
-				initialMidPoint = (touch0.position + touch1.position) / 2;
+				initialMidPointScreen = (touch0.position + touch1.position) / 2;
+				initialMidPointWorld = camera.ScreenToWorldPoint((touch0.position + touch1.position) / 2);
 
 				zoom = true;
 			}
@@ -168,7 +171,9 @@ public class CameraScript : MonoBehaviour {
 
 				Camera.main.orthographicSize = initialOrthographicSize / scaleFactor;
 
-				Vector2 delta = camera.ScreenToWorldPoint(currentMidPoint) - camera.ScreenToWorldPoint(initialMidPoint);
+				Vector2 delta = 
+					camera.ScreenToWorldPoint(currentMidPoint)  - 
+					camera.ScreenToWorldPoint(initialMidPointScreen);
 				
 				Vector3 newPos = initialCameraPosition;
 				newPos.x -= delta.x;
