@@ -20,12 +20,13 @@ public class CameraScript : MonoBehaviour {
 	private Vector2 initialTouch1Position;
 	private float initialOrthographicSize = 1;
 
-	public GUIText touchLabel;
-	public GUIText transformLabel;
-	public GUIText positionLabel;
+	public GUIText initialMidPointScreenLabel;
+	public GUIText initialMidPointWorldLabel;
+	public GUIText currentMidPointScreenLabel;
+	public GUIText currentMidPointWorldLabel;
 
 	public GUIText pinchScaleLabel;
-	public GUIText pinchDeltaLabel;
+
 
 	// Use this for initialization
 	void Start ()
@@ -116,19 +117,16 @@ public class CameraScript : MonoBehaviour {
 					initialCameraPosition = this.transform.position;
 
 					drag = true;
-					touchLabel.text = "Touched at " + touch0.position.ToString();
 				}
 				else
 				{
 					Vector3 mousePos = touch0.position;
 					Vector2 delta = camera.ScreenToWorldPoint(touch0.position) - camera.ScreenToWorldPoint(initialTouchPosition);
 					
-					positionLabel.text= "Now at " + touch0.position.ToString();
 					Vector3 newPos = initialCameraPosition;
 					newPos.x -= delta.x;
 					newPos.y -= delta.y;
 					this.transform.position = newPos;
-					transformLabel.text  = "Transform at " + this.transform.position.ToString();
 				}
 			}
 
@@ -167,21 +165,28 @@ public class CameraScript : MonoBehaviour {
 				                                   initialTouch0Position, 
 				                                   initialTouch1Position);
 
-				Vector2 currentMidPoint = (touch0.position + touch1.position) / 2;
-
 				Camera.main.orthographicSize = initialOrthographicSize / scaleFactor;
 
-				Vector2 delta = 
-					camera.ScreenToWorldPoint(currentMidPoint)  - 
-					camera.ScreenToWorldPoint(initialMidPointScreen);
-				
+				Vector3 currentMidPointScreen = (touch0.position + touch1.position) / 2;
+				float worldLength = Vector3.Distance(camera.ScreenToWorldPoint(touch0.position), camera.ScreenToWorldPoint(touch1.position));
+				float screenLength = Vector3.Distance(touch0.position, touch1.position);
+				float translateCoeff = worldLength / screenLength;
+
+				Vector3 delta = 
+					camera.ScreenToWorldPoint(currentMidPointScreen - initialMidPointScreen);
+
 				Vector3 newPos = initialCameraPosition;
-				newPos.x -= delta.x;
-				newPos.y -= delta.y;
+				newPos.x -= delta.x * translateCoeff;
+				newPos.y -= delta.y * translateCoeff;
 				this.transform.position = newPos;
-				transformLabel.text  = "Transform at " + this.transform.position.ToString();
 
 				this.pinchScaleLabel.text = scaleFactor.ToString();
+
+				this.initialMidPointScreenLabel.text = "Initial midpoint screen " + initialMidPointScreen.ToString();
+				this.initialMidPointWorldLabel.text = "Initial midpoint world " +camera.ScreenToWorldPoint(initialMidPointScreen).ToString();
+
+				this.currentMidPointScreenLabel.text = "Current midpoint screen " +currentMidPointScreen.ToString();
+				this.currentMidPointWorldLabel.text = "Current midpoint world " +camera.ScreenToWorldPoint(currentMidPointScreen).ToString();
 			}
 		}
 		else
