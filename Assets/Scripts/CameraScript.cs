@@ -168,12 +168,12 @@ public class CameraScript : MonoBehaviour {
 				Camera.main.orthographicSize = initialOrthographicSize / scaleFactor;
 
 				Vector3 currentMidPointScreen = (touch0.position + touch1.position) / 2;
-				float worldLength = Vector3.Distance(camera.ScreenToWorldPoint(touch0.position), camera.ScreenToWorldPoint(touch1.position));
+				float worldLength = Vector3.Distance(camera.ScreenToWorldPoint(initialTouch0Position), camera.ScreenToWorldPoint(initialTouch0Position));
 				float screenLength = Vector3.Distance(touch0.position, touch1.position);
 				float translateCoeff = worldLength / screenLength;
 
 				Vector3 delta = 
-					camera.ScreenToWorldPoint(currentMidPointScreen - initialMidPointScreen);
+					currentMidPointScreen - initialMidPointScreen;
 
 				Vector3 newPos = initialCameraPosition;
 				newPos.x -= delta.x * translateCoeff;
