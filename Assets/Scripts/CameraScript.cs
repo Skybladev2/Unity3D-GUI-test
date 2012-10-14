@@ -168,17 +168,14 @@ public class CameraScript : MonoBehaviour {
 				Camera.main.orthographicSize = initialOrthographicSize / scaleFactor;
 
 				Vector3 currentMidPointScreen = (touch0.position + touch1.position) / 2;
-				float worldLength = Vector3.Distance(camera.ScreenToWorldPoint(initialTouch0Position), camera.ScreenToWorldPoint(initialTouch0Position));
+
+				float worldLength = Vector3.Distance(camera.ScreenToWorldPoint(initialTouch0Position), camera.ScreenToWorldPoint(initialTouch1Position));
 				float screenLength = Vector3.Distance(touch0.position, touch1.position);
 				float translateCoeff = worldLength / screenLength;
 
-				Vector3 delta = 
-					currentMidPointScreen - initialMidPointScreen;
+				Vector3 centerScreen = initialMidPointScreen + (initialCameraPosition - initialMidPointWorld) / translateCoeff;
 
-				Vector3 newPos = initialCameraPosition;
-				newPos.x -= delta.x * translateCoeff;
-				newPos.y -= delta.y * translateCoeff;
-				this.transform.position = newPos;
+				this.transform.position = initialMidPointWorld + (centerScreen -  currentMidPointScreen) * translateCoeff;
 
 				this.pinchScaleLabel.text = scaleFactor.ToString();
 
