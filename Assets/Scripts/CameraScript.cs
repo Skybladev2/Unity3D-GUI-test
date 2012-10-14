@@ -173,7 +173,7 @@ public class CameraScript : MonoBehaviour {
 				float screenLength = Vector3.Distance(touch0.position, touch1.position);
 				float translateCoeff = worldLength / screenLength;
 
-				Vector3 centerScreen = initialMidPointScreen + (initialCameraPosition - initialMidPointWorld) / translateCoeff;
+				Vector3 centerScreen = initialMidPointScreen + (initialCameraPosition - initialMidPointWorld) / translateCoeff * scaleFactor;
 
 				this.transform.position = initialMidPointWorld + (centerScreen -  currentMidPointScreen) * translateCoeff;
 
